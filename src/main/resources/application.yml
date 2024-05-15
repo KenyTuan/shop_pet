@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: tutipet
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/DEV_tutipet
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+
+server:
+  port: 8080
