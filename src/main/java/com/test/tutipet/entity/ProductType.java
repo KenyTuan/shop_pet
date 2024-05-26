@@ -8,7 +8,7 @@ import lombok.*;
 import java.util.Set;
 
 @Entity
-@Table
+@Table(name = "product_type")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter @Builder
@@ -23,7 +23,7 @@ public class ProductType extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PetType petTypes;
 
-    @OneToMany(mappedBy = "type")
+    @OneToMany(mappedBy = "productType")
     @JsonIgnore
     private Set<Product> products;
 }
