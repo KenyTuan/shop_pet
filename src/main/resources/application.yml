@@ -2,9 +2,9 @@ spring:
   application:
     name: tutipet
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/DEV_tutipet
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3307/DEV_tutipet
     username: root
-    password: root
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -14,3 +14,11 @@ spring:
 
 server:
   port: 8080
+
+application:
+  security:
+    jwt:
+      secret-key: 034c3faf5961d9061cd1a14ef9f7012a58ef565714aae0850de136aa9b3f4f74
+      expiration: 86400000
+      refresh-token:
+        expiration: 604800000

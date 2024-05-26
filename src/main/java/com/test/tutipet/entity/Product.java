@@ -8,7 +8,7 @@ import lombok.*;
 import java.util.Set;
 
 @Entity
-@Table
+@Table(name = "products")
 @Getter @Setter @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,9 +31,8 @@ public class Product extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private EnableStatus enableStatus;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id")
-    @JsonIgnore
     private ProductType productType;
 
     @OneToMany(mappedBy = "product")
