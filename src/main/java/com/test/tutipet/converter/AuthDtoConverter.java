@@ -6,12 +6,15 @@ import com.test.tutipet.entity.User;
 import com.test.tutipet.enums.ObjectStatus;
 import com.test.tutipet.enums.Role;
 
+import java.util.Date;
+
 public class AuthDtoConverter {
 
-    public static AuthRes toResponse(String token, long expTime){
+    public static AuthRes toResponse(String token,Date issueAt ,Date expAt){
         return new AuthRes(
                 token,
-                expTime
+                issueAt,
+                expAt
         );
     }
 

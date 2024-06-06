@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "product_order")
 @NoArgsConstructor
@@ -11,7 +13,7 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class ProductOrder extends BaseEntity {
+public class ProductOrder extends BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
