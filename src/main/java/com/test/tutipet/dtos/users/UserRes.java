@@ -11,7 +11,6 @@ public record UserRes(
         String name,
         String email,
         boolean gender,
-        String img,
         LocalDateTime createdAt,
         Long createdBy,
         LocalDateTime updatedAt,
