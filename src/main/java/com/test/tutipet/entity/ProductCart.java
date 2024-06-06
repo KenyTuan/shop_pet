@@ -3,8 +3,6 @@ package com.test.tutipet.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.io.Serializable;
-
 @Entity
 @Table
 @Getter
@@ -12,7 +10,7 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductCart extends BaseEntity implements Serializable {
+public class ProductCart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

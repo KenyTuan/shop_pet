@@ -5,7 +5,6 @@ import com.test.tutipet.enums.PetType;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.io.Serializable;
 import java.util.Set;
 
 @Entity
@@ -13,7 +12,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter @Builder
-public class ProductType extends BaseEntity implements Serializable {
+public class ProductType extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -45,39 +45,28 @@ public class JwtUtil {
                 .getBody();
     }
 
-    public String generateToken(UserDetails userDetails, Date issuedAt, Date expiredAt) {
-        return generateToken(new HashMap<>(), userDetails, issuedAt, expiredAt);
+    public String generateToken(UserDetails userDetails) {
+        return generateToken(new HashMap<>(), userDetails);
     }
 
     public String generateToken(
             Map<String, Object> extraClaims,
-            UserDetails userDetails,
-            Date issuedAt,
-            Date expiredAt
+            UserDetails userDetails
     ) {
-        return buildToken(extraClaims, userDetails, issuedAt,expiredAt);
-    }
-
-    public Date getExpirationDate() {
-        return new Date(System.currentTimeMillis() + jwtExpiration);
-    }
-
-    public Date getIssuedAtDate() {
-        return new Date(System.currentTimeMillis());
+        return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
     private String buildToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails,
-            Date issuedAt,
-            Date expiration
+            long expiration
     ) {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
-                .setIssuedAt(issuedAt)
-                .setExpiration(expiration)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -95,11 +84,11 @@ public class JwtUtil {
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
-//    public String generateRefreshToken(
-//            UserDetails userDetails
-//    ) {
-//        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
-//    }
+    public String generateRefreshToken(
+            UserDetails userDetails
+    ) {
+        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+    }
 
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
