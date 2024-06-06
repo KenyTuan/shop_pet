@@ -18,6 +18,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -36,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
         final boolean existedEmail = userRepo.existsByEmail(registerReq.getEmail());
 
         if (existedEmail) {
-            throw new NotFoundException("404","Email Already Exists");
+            throw new NotFoundException("Email Already Exists");
         }
 
 
@@ -47,21 +49,38 @@ public class AuthServiceImpl implements AuthService {
         Cart cart = Cart.builder().user(newUser).build();
         cartRepo.save(cart);
 
-        return AuthDtoConverter.toResponse(jwtUtil.generateToken(user),604800000L);
+        Date issuedAt = jwtUtil.getIssuedAtDate();
+        Date expirationAt = jwtUtil.getExpirationDate();
+
+
+        return AuthDtoConverter
+                .toResponse(
+                        jwtUtil.generateToken(user,issuedAt,expirationAt),
+                        issuedAt,
+                        expirationAt
+                );
     }
 
     @Override
     public AuthRes authenticate(AuthReq authReq) {
 
         final User user = userRepo.findByEmail(authReq.getEmail())
-                .orElseThrow(() -> new NotFoundException("404","Email Not Found"));
+                .orElseThrow(() -> new NotFoundException("Email Not Found"));
 
         authenticationManager
                 .authenticate(
                         new UsernamePasswordAuthenticationToken(authReq.getEmail(),
                                 authReq.getPassword()));
 
-        return AuthDtoConverter.toResponse(jwtUtil.generateToken(user),604800000L);
+        Date issuedAt = jwtUtil.getIssuedAtDate();
+        Date expirationAt = jwtUtil.getExpirationDate();
+
+        return AuthDtoConverter
+                .toResponse(
+                        jwtUtil.generateToken(user,issuedAt,expirationAt),
+                        issuedAt,
+                        expirationAt
+                );
     }
 
 

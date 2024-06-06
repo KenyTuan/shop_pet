@@ -7,6 +7,7 @@ import com.test.tutipet.enums.EnableStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Set;
 
@@ -17,7 +18,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Promotion {
+public class Promotion extends BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
