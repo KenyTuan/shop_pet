@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.Set;
 
 @Entity
@@ -21,6 +23,8 @@ public class Order extends BaseEntity implements Serializable {
 
     private String note;
 
+    private BigDecimal total;
+
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
@@ -28,8 +32,10 @@ public class Order extends BaseEntity implements Serializable {
 
     private String address;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    private Timestamp orderDate;
+
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @OneToMany(mappedBy = "order")

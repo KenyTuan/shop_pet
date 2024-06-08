@@ -2,6 +2,7 @@ package com.test.tutipet.converter;
 
 import com.test.tutipet.dtos.auth.AuthRes;
 import com.test.tutipet.dtos.auth.RegisterReq;
+import com.test.tutipet.dtos.users.UserRes;
 import com.test.tutipet.entity.User;
 import com.test.tutipet.enums.ObjectStatus;
 import com.test.tutipet.enums.Role;
@@ -10,11 +11,12 @@ import java.util.Date;
 
 public class AuthDtoConverter {
 
-    public static AuthRes toResponse(String token,Date issueAt ,Date expAt){
+    public static AuthRes toResponse(String token,Date issueAt ,Date expAt,User user){
         return new AuthRes(
                 token,
                 issueAt,
-                expAt
+                expAt,
+                UserDtoConverter.toResponse(user)
         );
     }
 
