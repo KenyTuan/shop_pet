@@ -6,20 +6,22 @@ import com.test.tutipet.dtos.auth.AuthRes;
 import com.test.tutipet.dtos.auth.RegisterReq;
 import com.test.tutipet.entity.Cart;
 import com.test.tutipet.entity.User;
+import com.test.tutipet.enums.ObjectStatus;
 import com.test.tutipet.exception.NotFoundException;
 import com.test.tutipet.repository.CartRepo;
 import com.test.tutipet.repository.UserRepo;
 import com.test.tutipet.security.JwtUtil;
 import com.test.tutipet.service.AuthService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
@@ -31,12 +33,13 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
+    @Transactional
     public AuthRes register(RegisterReq registerReq) {
 
         final boolean existedEmail = userRepo.existsByEmail(registerReq.getEmail());
 
         if (existedEmail) {
-            throw new NotFoundException("404","Email Already Exists");
+            throw new NotFoundException("Email Already Exists");
         }
 
 
@@ -45,23 +48,44 @@ public class AuthServiceImpl implements AuthService {
 
         final User newUser = userRepo.save(user);
         Cart cart = Cart.builder().user(newUser).build();
+        cart.setObjectStatus(ObjectStatus.ACTIVE);
         cartRepo.save(cart);
 
-        return AuthDtoConverter.toResponse(jwtUtil.generateToken(user),604800000L);
+        Date issuedAt = jwtUtil.getIssuedAtDate();
+        Date expirationAt = jwtUtil.getExpirationDate();
+
+
+        return AuthDtoConverter
+                .toResponse(
+                        jwtUtil.generateToken(user,issuedAt,expirationAt),
+                        issuedAt,
+                        expirationAt,
+                        user
+                );
     }
 
     @Override
+    @Transactional
     public AuthRes authenticate(AuthReq authReq) {
 
         final User user = userRepo.findByEmail(authReq.getEmail())
-                .orElseThrow(() -> new NotFoundException("404","Email Not Found"));
+                .orElseThrow(() -> new NotFoundException("Email Not Found"));
 
         authenticationManager
                 .authenticate(
                         new UsernamePasswordAuthenticationToken(authReq.getEmail(),
                                 authReq.getPassword()));
 
-        return AuthDtoConverter.toResponse(jwtUtil.generateToken(user),604800000L);
+        Date issuedAt = jwtUtil.getIssuedAtDate();
+        Date expirationAt = jwtUtil.getExpirationDate();
+
+        return AuthDtoConverter
+                .toResponse(
+                        jwtUtil.generateToken(user,issuedAt,expirationAt),
+                        issuedAt,
+                        expirationAt,
+                        user
+                );
     }
 
 

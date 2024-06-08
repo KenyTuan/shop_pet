@@ -1,7 +1,6 @@
 package com.test.tutipet.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.test.tutipet.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,7 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -40,8 +38,8 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private Set<Order> orders;
 
-    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
-    private Set<Cart> carts;
+    @OneToOne(mappedBy = "user",fetch = FetchType.LAZY, orphanRemoval = true)
+    private Cart cart;
 
 
     @Override
