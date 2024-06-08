@@ -40,4 +40,8 @@ public class Product extends BaseEntity implements Serializable {
     @JsonIgnore
     private Set<ProductOrder> productOrders;
 
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<ProductCart> productCarts;
+
 }
