@@ -5,7 +5,6 @@ import com.test.tutipet.enums.EnableStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.io.Serializable;
 import java.util.Set;
 
 @Entity
@@ -13,7 +12,7 @@ import java.util.Set;
 @Getter @Setter @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Product extends BaseEntity implements Serializable {
+public class Product extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +20,7 @@ public class Product extends BaseEntity implements Serializable {
 
     private String name;
 
-    private double price;
+    private int price;
 
     private String description;
 
@@ -30,9 +29,9 @@ public class Product extends BaseEntity implements Serializable {
     private String image;
 
     @Enumerated(EnumType.STRING)
-    private EnableStatus status;
+    private EnableStatus enableStatus;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id")
     private ProductType productType;
 

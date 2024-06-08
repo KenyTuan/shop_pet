@@ -2,7 +2,7 @@ spring:
   application:
     name: tutipet
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:3302/DEV_tutipet
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3307/DEV_tutipet
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
