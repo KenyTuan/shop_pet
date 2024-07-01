@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 import java.util.Set;
 
 @Entity
-@Table
+@Table(name = "`order`")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter @Builder
@@ -20,8 +20,6 @@ public class Order extends BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String note;
 
     private BigDecimal total;
 

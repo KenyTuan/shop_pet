@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Set;
 
@@ -33,15 +34,19 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 
     private boolean gender;
 
+    @Column(unique = true,length = 64)
+    private String token;
+
+    private Timestamp expiryDate;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
     private Set<Order> orders;
 
-    @OneToOne(mappedBy = "user",fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", orphanRemoval = true)
     private Cart cart;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -76,5 +81,9 @@ public class User extends BaseEntity implements UserDetails, Serializable {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public boolean isTokenExpired() {
+        return new Timestamp(System.currentTimeMillis()).after(this.expiryDate);
     }
 }

@@ -12,7 +12,6 @@ public class CartDtoConverter {
     public static CartRes toResponse(Cart cart) {
         return new CartRes(
                 cart.getId(),
-                UserDtoConverter.toResponse(cart.getUser()),
                 ProductCartDtoConverter.toModelList(cart.getProductCarts())
         );
     }

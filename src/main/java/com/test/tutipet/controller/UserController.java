@@ -33,11 +33,11 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-    @PostMapping(ApiEndpoints.USER_V1)
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserRes createUser(@RequestBody @Valid UserReq userReq){
-        return userService.createUser(userReq);
-    }
+//    @PostMapping(ApiEndpoints.USER_V1)
+//    @ResponseStatus(HttpStatus.CREATED)
+//    public UserRes createUser(@RequestBody @Valid UserReq userReq){
+//        return userService.createUser(userReq);
+//    }
 
     @PutMapping(ApiEndpoints.USER_V1 + "/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)

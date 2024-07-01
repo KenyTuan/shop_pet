@@ -1,18 +1,14 @@
 package com.test.tutipet.controller;
 
 import com.test.tutipet.constants.ApiEndpoints;
-import com.test.tutipet.dtos.carts.CartReq;
 import com.test.tutipet.dtos.carts.CartRes;
 import com.test.tutipet.dtos.productCarts.ProductCartReq;
-import com.test.tutipet.dtos.productCarts.ProductCartRes;
-import com.test.tutipet.entity.ProductCart;
 import com.test.tutipet.service.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
 
 @RestController
 @RequestMapping(path = ApiEndpoints.PREFIX)
@@ -20,7 +16,7 @@ import java.util.Set;
 public class CartController {
     private final CartService cartService;
 
-    @PutMapping(ApiEndpoints.CART_V1 + "/item")
+    @PutMapping(ApiEndpoints.CART_V1)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public CartRes updateProductCartByUserId(
             @RequestParam(value = "userId") long userId,
@@ -28,7 +24,7 @@ public class CartController {
         return cartService.addOrReplaceProductCartByUserId(userId, productCartReq);
     }
 
-    @PostMapping(ApiEndpoints.CART_V1 + "/item")
+    @PostMapping(ApiEndpoints.CART_V1)
     @ResponseStatus(HttpStatus.CREATED)
     public CartRes addProductCartByUserId(
             @RequestParam(value = "userId") long userId,
@@ -37,16 +33,14 @@ public class CartController {
         return cartService.addProductCartByUserId(userId, req);
     }
 
-    @GetMapping(ApiEndpoints.CART_V1 + "/item")
+    @GetMapping(ApiEndpoints.CART_V1)
     public CartRes getProductCartsByUserId(
             @RequestParam(value = "userId") long userId
     ) {
-
         return cartService.getProductCartsByUserId(userId);
-
     }
 
-    @DeleteMapping(ApiEndpoints.CART_V1 + "/item")
+    @DeleteMapping(ApiEndpoints.CART_V1)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProductCartFromCart(
             @RequestParam(value = "userId") long userId,
