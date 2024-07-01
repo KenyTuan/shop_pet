@@ -4,12 +4,11 @@ import com.test.tutipet.constants.MessageException;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 
-@Builder @Getter
-public class RegisterReq {
+@Getter @Builder
+public class RequestForgot {
 
     @Email(message = MessageException.INVALID_EMAIL,regexp = "^(.+)@(\\S+)$")
     private String email;
@@ -20,8 +19,7 @@ public class RegisterReq {
     )
     private String password;
 
-    @Size(min = 5, max = 255, message = MessageException.REQUIRED_FULL_NAME)
-    private String fullName;
+    @NotBlank(message = MessageException.REQUIRED_TOKEN)
+    private String token;
 
-    private boolean gender;
 }

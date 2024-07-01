@@ -7,8 +7,8 @@ import com.test.tutipet.dtos.users.UserRes;
 import com.test.tutipet.entity.User;
 import com.test.tutipet.enums.ObjectStatus;
 import com.test.tutipet.exception.GenericAlreadyException;
-import com.test.tutipet.exception.ResourceNotFoundException;
-import com.test.tutipet.repository.UserRepo;
+import com.test.tutipet.exception.NotFoundException;
+import com.test.tutipet.repository.UserRepository;
 import com.test.tutipet.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepo userRepo;
+    private final UserRepository userRepository;
 
     @Override
     public PageRes<UserRes> getAllUser(
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
         final Pageable pageable = PageRequest.of(page, size, sort);
 
-        final Page<User> users = userRepo
+        final Page<User> users = userRepository
                 .findByFullNameContainingAndObjectStatus(keySearch,pageable,ObjectStatus.ACTIVE);
 
         final List<UserRes> userResList = users
@@ -59,44 +59,37 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserRes getUserById(long id) {
-        return UserDtoConverter.toResponse(userRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User Not Found With id" + id)));
+        return UserDtoConverter.toResponse(userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User Not Found With id" + id)));
     }
 
     @Override
     public UserRes updateUser(long id, UserReq req) {
-        User user = userRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User Not Found With id" + id));
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User Not Found With id" + id));
 
         user.setFullName(req.getFullName());
-        user.setPassword(new BCryptPasswordEncoder().encode(req.getPassword()));
         user.setGender(req.isGender());
 
-        return UserDtoConverter.toResponse(userRepo.save(user));
+        return UserDtoConverter.toResponse(userRepository.save(user));
     }
 
     @Override
     public void deleteUser(long id) {
-        final User user = userRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User Not Found With id" + id));
+        final User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User Not Found With id" + id));
 
         updateDeletedUserData(user);
 
-        userRepo.save(user);
+        userRepository.save(user);
     }
 
     @Override
     public UserRes createUser(UserReq userReq) {
 
-        final boolean existEmail = userRepo.existsByEmail(userReq.getEmail());
-
-        if (existEmail) {
-            throw new GenericAlreadyException("Email User Already Exists");
-        }
-
         final User user = UserDtoConverter.toEntity(userReq);
 
-        return UserDtoConverter.toResponse(userRepo.save(user));
+        return UserDtoConverter.toResponse(userRepository.save(user));
     }
 
 

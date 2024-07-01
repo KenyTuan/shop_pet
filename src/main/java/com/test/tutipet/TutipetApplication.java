@@ -8,10 +8,10 @@ import com.test.tutipet.enums.EnableStatus;
 import com.test.tutipet.enums.ObjectStatus;
 import com.test.tutipet.enums.PetType;
 import com.test.tutipet.enums.Role;
-import com.test.tutipet.repository.CartRepo;
-import com.test.tutipet.repository.ProductRepo;
-import com.test.tutipet.repository.ProductTypeRepo;
-import com.test.tutipet.repository.UserRepo;
+import com.test.tutipet.repository.CartRepository;
+import com.test.tutipet.repository.ProductRepository;
+import com.test.tutipet.repository.ProductTypeRepository;
+import com.test.tutipet.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,22 +30,22 @@ public class TutipetApplication {
 
 	@Bean
 	public CommandLineRunner dataLoader(
-			ProductTypeRepo productTypeRepo,
-			ProductRepo productRepo,
-			UserRepo userRepository,
-			CartRepo cartRepo){
+			ProductTypeRepository productTypeRepository,
+			ProductRepository productRepository,
+			UserRepository userRepository,
+			CartRepository cartRepository){
 
 			return new CommandLineRunner() {
 				@Override
 				public void run(String... args) throws Exception {
 					List<ProductType> types = dataProductType();
 
-					productTypeRepo.saveAll(types);
+					productTypeRepository.saveAll(types);
 
 
-					List<Product> products = dataProduct(productTypeRepo.findAll());
+					List<Product> products = dataProduct(productTypeRepository.findAll());
 
-					productRepo.saveAll(products);
+					productRepository.saveAll(products);
 
 					BCryptPasswordEncoder encoder =  new BCryptPasswordEncoder();
 
@@ -54,14 +54,13 @@ public class TutipetApplication {
 							.email("vothanhtuan098@gmail.com")
 							.fullName("vo thanh tuan")
 							.gender(true)
-							.password(encoder.encode("123456"))
+							.password(encoder.encode("L.quy560@"))
 							.role(Role.ADMIN)
 							.build();
 					user.setObjectStatus(ObjectStatus.ACTIVE);
 					Cart cart = Cart.builder().user(user).build();
-					cart.setObjectStatus(ObjectStatus.ACTIVE);
 					userRepository.save(user);
-					cartRepo.save(cart);
+					cartRepository.save(cart);
 				}
 		};
 

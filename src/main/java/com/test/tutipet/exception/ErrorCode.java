@@ -3,6 +3,7 @@ package com.test.tutipet.exception;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 public enum ErrorCode {
 
@@ -39,10 +40,8 @@ public enum ErrorCode {
     ACCESS_DENIED("PACKT-0014", "Access Denied."),
     UNAUTHORIZED("PACKT-0015", "Unauthorized");
 
-    @Getter
     private final String errCode;
 
-    @Getter
     private final String errMessage;
 
 

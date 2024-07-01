@@ -8,9 +8,8 @@ import com.test.tutipet.entity.Product;
 import com.test.tutipet.entity.ProductType;
 import com.test.tutipet.enums.ObjectStatus;
 import com.test.tutipet.exception.NotFoundException;
-import com.test.tutipet.exception.ResourceNotFoundException;
-import com.test.tutipet.repository.ProductRepo;
-import com.test.tutipet.repository.ProductTypeRepo;
+import com.test.tutipet.repository.ProductRepository;
+import com.test.tutipet.repository.ProductTypeRepository;
 import com.test.tutipet.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,12 +24,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
-    private final ProductRepo productRepo;
+    private final ProductRepository productRepository;
 
-    private final ProductTypeRepo productTypeRepo;
+    private final ProductTypeRepository productTypeRepository;
 
     @Override
-    public PageRes<ProductRes> getProducts(String keySearch, int page, int size, String sortBy, String sortDir) {
+    public List<ProductRes> getAllProducts() {
+        return productRepository.findAll().stream()
+                .map(ProductDtoConverter::toResponse)
+                .toList();
+    }
+
+    @Override
+    public PageRes<ProductRes> searchProducts(String keySearch, int page, int size, String sortBy, String sortDir) {
 
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
                 Sort.by(sortBy).ascending() :
@@ -38,7 +44,7 @@ public class ProductServiceImpl implements ProductService {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Product> products = productRepo
+        Page<Product> products = productRepository
                 .findByNameContainingAndObjectStatus(keySearch, ObjectStatus.ACTIVE ,pageable);
 
         List<ProductRes> productList = products
@@ -58,10 +64,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductRes getById(long id) {
+    public ProductRes getProductById(long id) {
 
-        final Product product = productRepo.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Product Not Found With Id" + id));
+        final Product product = productRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("Product Not Found With Id" + id));
         return ProductDtoConverter.toResponse(
                 product
         );
@@ -70,45 +76,45 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductRes insertProduct(ProductReq req) {
 
-        final ProductType type = productTypeRepo.findById(req.getType_id())
-                .orElseThrow(()-> new ResourceNotFoundException("Product Type Not Found With Id" + req.getType_id()));
+        final ProductType type = productTypeRepository.findById(req.getType_id())
+                .orElseThrow(()-> new NotFoundException("Product Type Not Found With Id" + req.getType_id()));
 
         final Product product = ProductDtoConverter.toEntity(req);
 
         product.setProductType(type);
 
-        return ProductDtoConverter.toResponse(productRepo.save(product)) ;
+        return ProductDtoConverter.toResponse(productRepository.save(product)) ;
     }
 
     @Override
     public ProductRes updateProduct(long id, ProductReq req) {
 
-        final Product product = productRepo.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Product Not Found With Id" + id));
+        final Product product = productRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("Product Not Found With Id" + id));
 
         changeObjStatus(product);
 
         final Product updatedProduct = ProductDtoConverter.toEntity(req);
 
-        final ProductType type = productTypeRepo.findById(req.getType_id())
-                .orElseThrow(() -> new ResourceNotFoundException("Product Type Not Found With Id" + req.getType_id()));
+        final ProductType type = productTypeRepository.findById(req.getType_id())
+                .orElseThrow(() -> new NotFoundException("Product Type Not Found With Id" + req.getType_id()));
 
         updatedProduct.setProductType(type);
 
-        return ProductDtoConverter.toResponse(productRepo.save(updatedProduct));
+        return ProductDtoConverter.toResponse(productRepository.save(updatedProduct));
     }
 
     @Override
     public void deleteProduct(long id) {
-        final Product product = productRepo.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("Product Not Found"));
+        final Product product = productRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("Product Not Found"));
 
         changeObjStatus(product);
     }
 
     private void changeObjStatus(Product product){
         product.setObjectStatus(ObjectStatus.DELETED);
-        productRepo.save(product);
+        productRepository.save(product);
     }
 
 }

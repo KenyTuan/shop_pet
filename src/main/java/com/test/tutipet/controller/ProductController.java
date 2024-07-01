@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(path = ApiEndpoints.PREFIX)
 @RequiredArgsConstructor
@@ -18,20 +20,25 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping(ApiEndpoints.PRODUCT_V1)
-    public PageRes<ProductRes> getProducts(
+    public List<ProductRes> getAllProducts() {
+        return productService.getAllProducts();
+    }
+
+    @GetMapping(ApiEndpoints.PRODUCT_V1 + "/search")
+    public PageRes<ProductRes> searchProducts(
             @RequestParam(value = "keySearch", defaultValue = "") String keySearch,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "name") String sortBy,
             @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir) {
 
-        return productService.getProducts(keySearch,page, size,sortBy,sortDir);
+        return productService.searchProducts(keySearch,page, size,sortBy,sortDir);
     }
 
 
     @GetMapping(ApiEndpoints.PRODUCT_V1 + "/{id}")
     public ProductRes getProductById(@PathVariable(value = "id") long id) {
-        return productService.getById(id);
+        return productService.getProductById(id);
     }
 
     @PostMapping(ApiEndpoints.PRODUCT_V1)

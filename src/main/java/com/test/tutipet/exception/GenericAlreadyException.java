@@ -14,7 +14,7 @@ public class GenericAlreadyException extends CustomException{
 
     public GenericAlreadyException(final String errMsg) {
         super(errMsg);
-        this.errMsg = ErrorCode.RESOURCE_NOT_FOUND.getErrMessage();
+        this.errMsg = errMsg;
         this.errCode = ErrorCode.RESOURCE_NOT_FOUND.getErrCode();
     }
 

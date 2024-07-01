@@ -7,7 +7,6 @@ import java.util.Set;
 
 public record CartRes(
         Long id,
-        UserRes user,
         Set<ProductCartRes> productCart
 ) {
 }

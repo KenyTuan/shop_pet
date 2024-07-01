@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 public record ProductCartRes(
         Long id,
         int quantity,
-        BigDecimal totalProduct,
         ProductRes product
 ) {
 }

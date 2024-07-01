@@ -1,17 +1,18 @@
 package com.test.tutipet.service.impl;
 
+import com.test.tutipet.constants.MessageException;
 import com.test.tutipet.converter.AuthDtoConverter;
-import com.test.tutipet.dtos.auth.AuthReq;
-import com.test.tutipet.dtos.auth.AuthRes;
-import com.test.tutipet.dtos.auth.RegisterReq;
+import com.test.tutipet.dtos.auth.*;
 import com.test.tutipet.entity.Cart;
 import com.test.tutipet.entity.User;
-import com.test.tutipet.enums.ObjectStatus;
+import com.test.tutipet.exception.BadRequestException;
+import com.test.tutipet.exception.GenericAlreadyException;
 import com.test.tutipet.exception.NotFoundException;
-import com.test.tutipet.repository.CartRepo;
-import com.test.tutipet.repository.UserRepo;
+import com.test.tutipet.repository.CartRepository;
+import com.test.tutipet.repository.UserRepository;
 import com.test.tutipet.security.JwtUtil;
 import com.test.tutipet.service.AuthService;
+import com.test.tutipet.service.MailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,37 +20,41 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.sql.Timestamp;
+import java.util.*;
+
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final UserRepo userRepo;
+    private static final int EXPIRATION = 60 * 15 *1000;
+
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final CartRepo cartRepo;
+    private final CartRepository cartRepository;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final MailService mailService;
 
 
     @Override
     @Transactional
     public AuthRes register(RegisterReq registerReq) {
 
-        final boolean existedEmail = userRepo.existsByEmail(registerReq.getEmail());
+        final boolean existedEmail = userRepository.existsByEmail(registerReq.getEmail());
 
         if (existedEmail) {
-            throw new NotFoundException("Email Already Exists");
+            throw new GenericAlreadyException(MessageException.ALREADY_EXIST_EMAIL);
         }
 
 
         final User user = AuthDtoConverter.toEntity(registerReq);
         user.setPassword(passwordEncoder.encode(registerReq.getPassword()));
 
-        final User newUser = userRepo.save(user);
+        final User newUser = userRepository.save(user);
         Cart cart = Cart.builder().user(newUser).build();
-        cart.setObjectStatus(ObjectStatus.ACTIVE);
-        cartRepo.save(cart);
+        cartRepository.save(cart);
 
         Date issuedAt = jwtUtil.getIssuedAtDate();
         Date expirationAt = jwtUtil.getExpirationDate();
@@ -68,8 +73,12 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public AuthRes authenticate(AuthReq authReq) {
 
-        final User user = userRepo.findByEmail(authReq.getEmail())
-                .orElseThrow(() -> new NotFoundException("Email Not Found"));
+        final User user = userRepository.findByEmail(authReq.getEmail())
+                .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_USER));
+
+        if (!passwordEncoder.matches(authReq.getPassword(), user.getPassword())){
+            throw new BadRequestException(MessageException.NOT_MATCH_PASSWORD);
+        }
 
         authenticationManager
                 .authenticate(
@@ -86,6 +95,52 @@ public class AuthServiceImpl implements AuthService {
                         expirationAt,
                         user
                 );
+    }
+
+    @Override
+    public void requestForget(String email) {
+        final User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_USER));
+
+        final String token = UUID.randomUUID().toString();
+
+        user.setToken(token);
+        user.setExpiryDate(new Timestamp(System.currentTimeMillis() + EXPIRATION));
+        userRepository.save(user);
+        String subject = "Verification Code";
+        String body = "Hi, " + user.getFullName() + "\n\nYour Verification Code: " + token;
+        mailService.sendMail(email,subject, body);
+    }
+
+    @Override
+    public void forgetPassword(RequestForgot requestForgot) {
+        final User user = userRepository.findByEmailAndToken(requestForgot.getEmail(),requestForgot.getToken())
+                .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_USER));
+
+        if(user.isTokenExpired()){
+            throw new BadRequestException(MessageException.TOKEN_EXPIRED);
+        }
+
+        user.setPassword(passwordEncoder.encode(requestForgot.getPassword()));
+        userRepository.save(user);
+
+        String subject = "Password Reset";
+        String body = "Hi, " + user.getFullName() + "\n\nCompleted Password Reset";
+        mailService.sendMail(user.getEmail(),subject, body);
+    }
+
+    @Override
+    public void changePasswordByToken(String token, ChangePasswordReq changePasswordReq) {
+        String email = jwtUtil.extractUsername(token.substring(7));
+        final User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_USER));
+
+        if (passwordEncoder.matches(changePasswordReq.getOldPassword(), user.getPassword())) {
+            throw new BadRequestException(MessageException.NOT_MATCH_PASSWORD);
+        }
+
+        user.setPassword(passwordEncoder.encode(changePasswordReq.getNewPassword()));
+        userRepository.save(user);
     }
 
 
