@@ -23,8 +23,6 @@ public class ProductCart implements Serializable {
 
     private int quantity;
 
-    private BigDecimal totalProduct;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id",referencedColumnName = "id")
     private Product product;

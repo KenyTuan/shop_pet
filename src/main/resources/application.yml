@@ -11,6 +11,17 @@ spring:
       ddl-auto: create-drop
     database-platform: org.hibernate.dialect.MySQLDialect
     show-sql: true
+  mail:
+    host: smtp.gmail.com
+    username: ${MAIL_USERNAME}
+    port: 587
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 server:
   port: 8080
@@ -19,6 +30,6 @@ application:
   security:
     jwt:
       secret-key: 034c3faf5961d9061cd1a14ef9f7012a58ef565714aae0850de136aa9b3f4f74
-      expiration: 86400000
+      expiration: 604800000
       refresh-token:
-        expiration: 604800000
+        expiration: 648000000

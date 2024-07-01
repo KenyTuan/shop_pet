@@ -2,12 +2,11 @@ package com.test.tutipet.controller;
 
 
 import com.test.tutipet.constants.ApiEndpoints;
-import com.test.tutipet.dtos.auth.AuthReq;
-import com.test.tutipet.dtos.auth.AuthRes;
-import com.test.tutipet.dtos.auth.RegisterReq;
+import com.test.tutipet.dtos.auth.*;
 import com.test.tutipet.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,5 +29,20 @@ public class AuthController {
         return authService.authenticate(authReq);
     }
 
+    @PostMapping(ApiEndpoints.AUTH_V1 + "/forget-password/request")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void generatePasswordRestToken(@RequestParam(name = "email") String email) {
+        authService.requestForget(email);
+    }
 
+    @PatchMapping(ApiEndpoints.AUTH_V1 + "/forget-password")
+    public void confirmPasswordReset(@RequestBody @Valid RequestForgot requestForgot) {
+        authService.forgetPassword(requestForgot);
+    }
+
+    @PatchMapping(ApiEndpoints.AUTH_V1 + "/change-password")
+    public void changePasswordByToken(@RequestBody @Valid ChangePasswordReq changePasswordReq,
+                                      @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token) {
+        authService.changePasswordByToken(token,changePasswordReq);
+    }
 }

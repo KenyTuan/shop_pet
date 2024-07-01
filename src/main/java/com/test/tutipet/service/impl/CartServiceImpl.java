@@ -4,15 +4,14 @@ import com.test.tutipet.converter.CartDtoConverter;
 import com.test.tutipet.converter.ProductCartDtoConverter;
 import com.test.tutipet.dtos.carts.CartRes;
 import com.test.tutipet.dtos.productCarts.ProductCartReq;
-import com.test.tutipet.dtos.productCarts.ProductCartRes;
 import com.test.tutipet.entity.Cart;
 import com.test.tutipet.entity.Product;
 import com.test.tutipet.entity.ProductCart;
 import com.test.tutipet.exception.GenericAlreadyException;
-import com.test.tutipet.exception.ResourceNotFoundException;
-import com.test.tutipet.repository.CartRepo;
-import com.test.tutipet.repository.ProductCartRepo;
-import com.test.tutipet.repository.ProductRepo;
+import com.test.tutipet.exception.NotFoundException;
+import com.test.tutipet.repository.CartRepository;
+import com.test.tutipet.repository.ProductCartRepository;
+import com.test.tutipet.repository.ProductRepository;
 import com.test.tutipet.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,11 +25,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
 
-    private final CartRepo cartRepo;
+    private final CartRepository cartRepository;
 
-    private final ProductCartRepo productCartRepo;
+    private final ProductCartRepository productCartRepository;
 
-    private final ProductRepo productRepo;
+    private final ProductRepository productRepository;
 
     @Override
     public CartRes getById(long id) {
@@ -40,8 +39,8 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart getCartByUserId(long userId) {
 
-        return cartRepo.findByUserId(userId)
-                .orElseThrow(()-> new ResourceNotFoundException("User Not Found With Id" + userId));
+        return cartRepository.findByUserId(userId)
+                .orElseThrow(()-> new NotFoundException("User Not Found With Id" + userId));
     }
 
     @Override
@@ -67,8 +66,8 @@ public class CartServiceImpl implements CartService {
 
         }
 
-        final Product product = productRepo.findById(req.getProductId())
-                .orElseThrow(()-> new ResourceNotFoundException("Product Not Found With Id" + req.getProductId()));
+        final Product product = productRepository.findById(req.getProductId())
+                .orElseThrow(()-> new NotFoundException("Product Not Found With Id" + req.getProductId()));
 
 
         ProductCart productCart = ProductCartDtoConverter.toEntity(req);
@@ -77,8 +76,8 @@ public class CartServiceImpl implements CartService {
 
         cart.getProductCarts().add(productCart);
 
-        productCartRepo.save(productCart);
-        cartRepo.save(cart);
+        productCartRepository.save(productCart);
+        cartRepository.save(cart);
 
         return CartDtoConverter.toResponse(cart);
     }
@@ -95,29 +94,25 @@ public class CartServiceImpl implements CartService {
 
         productCarts
                 .forEach(productCart -> {
-                    if (productCart.getId().equals(req.getProductId())) {
+                    if (productCart.getProduct().getId().equals(req.getProductId())) {
                         productCart.setQuantity(req.getQuantity());
-                        productCart.setTotalProduct(req.getTotalProduct());
-                        productCartRepo.save(productCart);
+                        productCartRepository.save(productCart);
                         existItem.set(true);
                     }
                 });
 
         if (!existItem.get()) {
-            final Product product = productRepo.findById(req.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Product Not Found With Id" + req.getProductId()));
-
+            final Product product = productRepository.findById(req.getProductId())
+                    .orElseThrow(() -> new NotFoundException("Product Not Found With Id" + req.getProductId()));
 
             ProductCart productCart = ProductCartDtoConverter.toEntity(req);
             productCart.setProduct(product);
             productCart.setCart(cart);
             productCarts.add(productCart);
-            productCartRepo.save(productCart);
+            productCartRepository.save(productCart);
         }
 
-
-        cartRepo.save(cart);
-
+        cartRepository.save(cart);
         return CartDtoConverter.toResponse(cart);
     }
 
@@ -130,8 +125,8 @@ public class CartServiceImpl implements CartService {
                 .filter(i -> i.getProduct().getId().equals(productId)).findFirst().get();
         cart.getProductCarts().removeIf(i -> i.getId().equals(productId));
 
-        productCartRepo.delete(productCart);
-        cartRepo.save(cart);
+        productCartRepository.delete(productCart);
+        cartRepository.save(cart);
     }
 
 

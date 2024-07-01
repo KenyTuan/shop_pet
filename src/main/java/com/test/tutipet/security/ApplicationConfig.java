@@ -1,7 +1,7 @@
 package com.test.tutipet.security;
 
 
-import com.test.tutipet.repository.UserRepo;
+import com.test.tutipet.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,11 +19,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-    private final UserRepo userRepo;
+    private final UserRepository userRepository;
 
     @Bean
     public UserDetailsService getUserDetailsService() {
-        return username -> userRepo.findByEmail(username)
+        return username -> userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
     }
 

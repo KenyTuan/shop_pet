@@ -16,7 +16,6 @@ public class ProductCartDtoConverter {
                 .builder()
                 .product(Product.builder().id(req.getProductId()).build())
                 .quantity(req.getQuantity())
-                .totalProduct(req.getTotalProduct())
                 .build();
     }
 
@@ -24,7 +23,6 @@ public class ProductCartDtoConverter {
         return new ProductCartRes(
                 productCart.getId(),
                 productCart.getQuantity(),
-                productCart.getTotalProduct(),
                 ProductDtoConverter.toResponse(productCart.getProduct())
         );
     }

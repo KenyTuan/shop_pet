@@ -55,6 +55,7 @@ public class JwtUtil {
             Date issuedAt,
             Date expiredAt
     ) {
+        extraClaims.put("roles", userDetails.getAuthorities());
         return buildToken(extraClaims, userDetails, issuedAt,expiredAt);
     }
 

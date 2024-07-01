@@ -25,7 +25,15 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
-            ApiEndpoints.PREFIX + ApiEndpoints.AUTH_V1 + "/**"
+            ApiEndpoints.PREFIX + ApiEndpoints.AUTH_V1 + "/**",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui/**",
+            "/webjars/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**"
     };
 
     private final JwtAuthFilter jwtAuthFilter;
