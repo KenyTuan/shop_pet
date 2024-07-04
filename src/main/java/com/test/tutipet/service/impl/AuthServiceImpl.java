@@ -2,9 +2,14 @@ package com.test.tutipet.service.impl;
 
 import com.test.tutipet.constants.MessageException;
 import com.test.tutipet.converter.AuthDtoConverter;
+import com.test.tutipet.converter.UserDtoConverter;
 import com.test.tutipet.dtos.auth.*;
+import com.test.tutipet.dtos.users.ChangePasswordReq;
+import com.test.tutipet.dtos.users.UpdateUserReq;
+import com.test.tutipet.dtos.users.UserRes;
 import com.test.tutipet.entity.Cart;
 import com.test.tutipet.entity.User;
+import com.test.tutipet.enums.ObjectStatus;
 import com.test.tutipet.exception.BadRequestException;
 import com.test.tutipet.exception.GenericAlreadyException;
 import com.test.tutipet.exception.NotFoundException;
@@ -14,6 +19,8 @@ import com.test.tutipet.security.JwtUtil;
 import com.test.tutipet.service.AuthService;
 import com.test.tutipet.service.MailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -98,6 +105,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public void requestForget(String email) {
         final User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_USER));
@@ -106,41 +114,85 @@ public class AuthServiceImpl implements AuthService {
 
         user.setToken(token);
         user.setExpiryDate(new Timestamp(System.currentTimeMillis() + EXPIRATION));
+
         userRepository.save(user);
+
         String subject = "Verification Code";
         String body = "Hi, " + user.getFullName() + "\n\nYour Verification Code: " + token;
+
         mailService.sendMail(email,subject, body);
     }
 
     @Override
-    public void forgetPassword(RequestForgot requestForgot) {
-        final User user = userRepository.findByEmailAndToken(requestForgot.getEmail(),requestForgot.getToken())
+    @Transactional
+    public void forgetPassword(ForgotReq forgotReq) {
+        final User user = userRepository.findByEmailAndToken(forgotReq.getEmail(), forgotReq.getToken())
                 .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_USER));
 
         if(user.isTokenExpired()){
             throw new BadRequestException(MessageException.TOKEN_EXPIRED);
         }
 
-        user.setPassword(passwordEncoder.encode(requestForgot.getPassword()));
-        userRepository.save(user);
+        final User newUser = new User();
+        BeanUtils.copyProperties(user, newUser);
+
+        updateDeletedUserData(user);
+
+        newUser.setExpiryDate(new Timestamp(System.currentTimeMillis()));
+        newUser.setPassword(passwordEncoder.encode(forgotReq.getPassword()));
+        userRepository.save(newUser);
 
         String subject = "Password Reset";
         String body = "Hi, " + user.getFullName() + "\n\nCompleted Password Reset";
+
         mailService.sendMail(user.getEmail(),subject, body);
     }
 
     @Override
+    @Transactional
     public void changePasswordByToken(String token, ChangePasswordReq changePasswordReq) {
-        String email = jwtUtil.extractUsername(token.substring(7));
-        final User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_USER));
+        final User user = getUserByEmailFormToken(token);
 
         if (passwordEncoder.matches(changePasswordReq.getOldPassword(), user.getPassword())) {
             throw new BadRequestException(MessageException.NOT_MATCH_PASSWORD);
         }
 
-        user.setPassword(passwordEncoder.encode(changePasswordReq.getNewPassword()));
+        final User newUser = new User();
+
+        BeanUtils.copyProperties(changePasswordReq, user);
+
+        updateDeletedUserData(user);
+
+        newUser.setPassword(passwordEncoder.encode(changePasswordReq.getNewPassword()));
+        userRepository.save(newUser);
+    }
+
+    @Override
+    @Transactional
+    public UserRes updateProfileByToken(String token, UpdateUserReq updateUserReq) {
+        final User user = getUserByEmailFormToken(token);
+
+        final User updatedUser = UserDtoConverter.toEntity(updateUserReq,user);
+
+        updateDeletedUserData(user);
+
+        userRepository.save(updatedUser);
+
+        return UserDtoConverter.toResponse(updatedUser);
+    }
+
+    public User getUserByEmailFormToken(String token) {
+        final String email = jwtUtil.extractUsername(token.substring(7));
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_USER));
+    }
+
+    @Async
+    public void updateDeletedUserData(User user){
+        user.setObjectStatus(ObjectStatus.DELETED);
+        user.setEmail("deleted-" + UUID.randomUUID() + user.getEmail());
         userRepository.save(user);
+
     }
 
 

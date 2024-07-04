@@ -2,8 +2,10 @@ package com.test.tutipet.controller;
 
 import com.test.tutipet.constants.ApiEndpoints;
 import com.test.tutipet.dtos.PageRes;
-import com.test.tutipet.dtos.products.ProductReq;
+import com.test.tutipet.dtos.products.CreateProductReq;
 import com.test.tutipet.dtos.products.ProductRes;
+import com.test.tutipet.dtos.products.UpdateProductReq;
+import com.test.tutipet.enums.EnableStatus;
 import com.test.tutipet.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,8 +45,24 @@ public class ProductController {
 
     @PostMapping(ApiEndpoints.PRODUCT_V1)
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductRes postProduct(@RequestBody @Valid ProductReq product) {
+    public ProductRes postProduct(@RequestBody @Valid CreateProductReq product) {
         return productService.insertProduct(product);
+    }
+
+    @PutMapping(ApiEndpoints.PRODUCT_V1 + "/{id}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ProductRes updateProduct(
+            @PathVariable long id,
+            @RequestBody @Valid UpdateProductReq product) {
+        return productService.updateEnableProduct(id,product);
+    }
+
+    @PatchMapping(ApiEndpoints.PRODUCT_V1 + "/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ProductRes updateEnableProduct(
+            @PathVariable long id,
+            @RequestBody EnableStatus enableStatus) {
+        return productService.updateEnableProduct(id,enableStatus);
     }
 
     @DeleteMapping(ApiEndpoints.PRODUCT_V1 + "/{id}")
@@ -52,7 +70,5 @@ public class ProductController {
     public void deleteProduct(@PathVariable(value = "id") long id) {
         productService.deleteProduct(id);
     }
-
-
 
 }

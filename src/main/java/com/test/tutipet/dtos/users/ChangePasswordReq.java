@@ -1,4 +1,4 @@
-package com.test.tutipet.dtos.auth;
+package com.test.tutipet.dtos.users;
 
 import com.test.tutipet.constants.MessageException;
 import jakarta.validation.constraints.Pattern;

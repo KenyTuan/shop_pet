@@ -24,7 +24,7 @@ public class AuthDtoConverter {
                 .builder()
                 .fullName(req.getFullName())
                 .email(req.getEmail())
-                .gender(req.isGender())
+                .gender(req.getGender())
                 .role(Role.USER)
                 .build();
         user.setObjectStatus(ObjectStatus.ACTIVE);

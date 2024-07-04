@@ -4,10 +4,7 @@ import com.test.tutipet.entity.Cart;
 import com.test.tutipet.entity.Product;
 import com.test.tutipet.entity.ProductType;
 import com.test.tutipet.entity.User;
-import com.test.tutipet.enums.EnableStatus;
-import com.test.tutipet.enums.ObjectStatus;
-import com.test.tutipet.enums.PetType;
-import com.test.tutipet.enums.Role;
+import com.test.tutipet.enums.*;
 import com.test.tutipet.repository.CartRepository;
 import com.test.tutipet.repository.ProductRepository;
 import com.test.tutipet.repository.ProductTypeRepository;
@@ -53,7 +50,7 @@ public class TutipetApplication {
 							.builder()
 							.email("vothanhtuan098@gmail.com")
 							.fullName("vo thanh tuan")
-							.gender(true)
+							.gender(GenderType.FEMALE)
 							.password(encoder.encode("L.quy560@"))
 							.role(Role.ADMIN)
 							.build();

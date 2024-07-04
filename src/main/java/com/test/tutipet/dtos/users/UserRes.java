@@ -1,12 +1,13 @@
 package com.test.tutipet.dtos.users;
 
+import com.test.tutipet.enums.GenderType;
 import com.test.tutipet.enums.Role;
 
 public record UserRes(
         Long id,
-        String name,
+        String fullName,
         String email,
-        boolean gender,
+        GenderType gender,
         Role role
 ) {
 }

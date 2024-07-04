@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -23,11 +25,17 @@ public class Product extends BaseEntity implements Serializable {
 
     private double price;
 
+    private String brand;
+
+    private String origin;
+
     private String description;
 
     private String info;
 
     private String image;
+
+    private ZonedDateTime timeExp;
 
     @Enumerated(EnumType.STRING)
     private EnableStatus status;
@@ -36,12 +44,16 @@ public class Product extends BaseEntity implements Serializable {
     @JoinColumn(name = "type_id")
     private ProductType productType;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<ProductOrder> productOrders;
+    private Set<ProductOrder> productOrders = new HashSet<>();
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<ProductCart> productCarts;
+    private Set<ProductCart> productCarts = new HashSet<>();
+
+    @ManyToMany(mappedBy = "products")
+    @JsonIgnore
+    private Set<Promotion> promotions  = new HashSet<>();
 
 }

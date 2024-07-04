@@ -6,6 +6,7 @@ import com.test.tutipet.dtos.productCarts.ProductCartReq;
 import com.test.tutipet.service.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,35 +19,35 @@ public class CartController {
 
     @PutMapping(ApiEndpoints.CART_V1)
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public CartRes updateProductCartByUserId(
-            @RequestParam(value = "userId") long userId,
+    public CartRes updateProductCartByToken(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
             @RequestBody @Valid ProductCartReq productCartReq) {
-        return cartService.addOrReplaceProductCartByUserId(userId, productCartReq);
+        return cartService.addOrReplaceProductCartByToken(token, productCartReq);
     }
 
     @PostMapping(ApiEndpoints.CART_V1)
     @ResponseStatus(HttpStatus.CREATED)
-    public CartRes addProductCartByUserId(
-            @RequestParam(value = "userId") long userId,
-            @RequestBody @Valid ProductCartReq req
+    public CartRes addProductCartByToken(
+            @RequestBody @Valid ProductCartReq req,
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token
     ) {
-        return cartService.addProductCartByUserId(userId, req);
+        return cartService.addProductCartByToken(token, req);
     }
 
     @GetMapping(ApiEndpoints.CART_V1)
-    public CartRes getProductCartsByUserId(
-            @RequestParam(value = "userId") long userId
+    public CartRes getProductCartsByToken(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token
     ) {
-        return cartService.getProductCartsByUserId(userId);
+        return cartService.getProductCartsByToken(token);
     }
 
     @DeleteMapping(ApiEndpoints.CART_V1)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProductCartFromCart(
-            @RequestParam(value = "userId") long userId,
-            @RequestParam(value = "productId") long productId
+            @RequestParam(value = "productId") long productId,
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token
     ) {
-        cartService.deleteProductCartFromCart(userId, productId);
+        cartService.deleteProductCartByToken(token, productId);
     }
 
 }

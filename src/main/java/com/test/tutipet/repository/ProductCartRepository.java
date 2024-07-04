@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ProductCartRepository extends JpaRepository<ProductCart, Long> {
 
@@ -13,4 +15,5 @@ public interface ProductCartRepository extends JpaRepository<ProductCart, Long> 
             "and u.objectStatus = com.test.tutipet.enums.ObjectStatus.ACTIVE")
     Iterable<ProductCart> findByUserId(Long userId);
 
+    List<ProductCart> findByProductId(Long productId);
 }

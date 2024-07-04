@@ -3,6 +3,9 @@ package com.test.tutipet.controller;
 
 import com.test.tutipet.constants.ApiEndpoints;
 import com.test.tutipet.dtos.auth.*;
+import com.test.tutipet.dtos.users.ChangePasswordReq;
+import com.test.tutipet.dtos.users.UpdateUserReq;
+import com.test.tutipet.dtos.users.UserRes;
 import com.test.tutipet.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,13 +39,20 @@ public class AuthController {
     }
 
     @PatchMapping(ApiEndpoints.AUTH_V1 + "/forget-password")
-    public void confirmPasswordReset(@RequestBody @Valid RequestForgot requestForgot) {
-        authService.forgetPassword(requestForgot);
+    public void confirmPasswordReset(@RequestBody @Valid ForgotReq forgotReq) {
+        authService.forgetPassword(forgotReq);
     }
 
     @PatchMapping(ApiEndpoints.AUTH_V1 + "/change-password")
     public void changePasswordByToken(@RequestBody @Valid ChangePasswordReq changePasswordReq,
                                       @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token) {
         authService.changePasswordByToken(token,changePasswordReq);
+    }
+
+    @PutMapping(ApiEndpoints.AUTH_V1 + "/update-profile")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public UserRes updateProfileByToken(@RequestBody @Valid UpdateUserReq updateUserReq,
+                                        @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token ){
+        return authService.updateProfileByToken(token,updateUserReq);
     }
 }
