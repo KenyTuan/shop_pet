@@ -1,5 +1,6 @@
 package com.test.tutipet.service.impl;
 
+import com.test.tutipet.constants.MessageException;
 import com.test.tutipet.converter.CartDtoConverter;
 import com.test.tutipet.converter.ProductCartDtoConverter;
 import com.test.tutipet.dtos.carts.CartRes;
@@ -7,16 +8,19 @@ import com.test.tutipet.dtos.productCarts.ProductCartReq;
 import com.test.tutipet.entity.Cart;
 import com.test.tutipet.entity.Product;
 import com.test.tutipet.entity.ProductCart;
+import com.test.tutipet.exception.BadRequestException;
 import com.test.tutipet.exception.GenericAlreadyException;
 import com.test.tutipet.exception.NotFoundException;
 import com.test.tutipet.repository.CartRepository;
 import com.test.tutipet.repository.ProductCartRepository;
 import com.test.tutipet.repository.ProductRepository;
+import com.test.tutipet.security.JwtUtil;
 import com.test.tutipet.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,27 +35,32 @@ public class CartServiceImpl implements CartService {
 
     private final ProductRepository productRepository;
 
+    private final JwtUtil jwtUtil;
+
     @Override
     public CartRes getById(long id) {
         return null;
     }
 
     @Override
-    public Cart getCartByUserId(long userId) {
+    public Cart getCartByToken(String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new BadRequestException("400", "Invalid or missing Authorization header");
+        }
+        final String email = jwtUtil.extractUsername(token.substring(7));
 
-        return cartRepository.findByUserId(userId)
-                .orElseThrow(()-> new NotFoundException("User Not Found With Id" + userId));
+        return cartRepository.findCartByUserEmail(email)
+                .orElseThrow(()-> new NotFoundException(MessageException.NOT_FOUND_USER));
     }
 
     @Override
-    public CartRes getProductCartsByUserId(long userId) {
-        return CartDtoConverter.toResponse(getCartByUserId(userId));
+    public CartRes getProductCartsByToken(String token) {
+        return CartDtoConverter.toResponse(getCartByToken(token));
     }
 
-    @Override
     @Transactional
-    public CartRes addProductCartByUserId(long userId, ProductCartReq req) {
-        final Cart cart = getCartByUserId(userId);
+    public CartRes addProductCartByToken(String token, ProductCartReq req) {
+        final Cart cart = getCartByToken(token);
 
         final long count = cart
                 .getProductCarts()
@@ -84,9 +93,9 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartRes addOrReplaceProductCartByUserId(long userId, ProductCartReq req) {
+    public CartRes addOrReplaceProductCartByToken(String token, ProductCartReq req) {
 
-        Cart cart = getCartByUserId(userId);
+        Cart cart = getCartByToken(token);
 
         Set<ProductCart> productCarts = Objects.nonNull(cart) ? cart.getProductCarts() : null;
 
@@ -118,8 +127,21 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public void deleteProductCartFromCart(long userId, long productId) {
-        Cart cart = getCartByUserId(userId);
+    public void updateCartsByProductId(Product product, long productId) {
+        final List<ProductCart> productCarts = productCartRepository.findByProductId(productId);
+
+        List<ProductCart> updatedProductCarts = productCarts.stream()
+                .map(item -> updateProductCartData(item, product))
+                .toList();
+
+        productCartRepository.saveAll(updatedProductCarts);
+    }
+
+    @Override
+    @Transactional
+    public void deleteProductCartByToken(String token, long productId) {
+        Cart cart = getCartByToken(token);
+
         ProductCart productCart = cart.getProductCarts()
                 .stream()
                 .filter(i -> i.getProduct().getId().equals(productId)).findFirst().get();
@@ -129,5 +151,9 @@ public class CartServiceImpl implements CartService {
         cartRepository.save(cart);
     }
 
+    private ProductCart updateProductCartData(ProductCart productCart, Product product) {
+        productCart.setProduct(product);
+        return productCart;
+    }
 
 }

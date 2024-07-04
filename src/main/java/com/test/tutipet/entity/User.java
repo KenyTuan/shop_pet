@@ -1,6 +1,7 @@
 package com.test.tutipet.entity;
 
 
+import com.test.tutipet.enums.GenderType;
 import com.test.tutipet.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -23,16 +25,16 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    @Column(unique = true, nullable = false)
     private String email;
 
     private String password;
 
     private String fullName;
 
-    private boolean gender;
+    @Enumerated(EnumType.STRING)
+    private GenderType gender;
 
     @Column(unique = true,length = 64)
     private String token;
@@ -43,7 +45,7 @@ public class User extends BaseEntity implements UserDetails, Serializable {
     private Role role;
 
     @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
-    private Set<Order> orders;
+    private Set<Order> orders = new HashSet<>();
 
     @OneToOne(mappedBy = "user", orphanRemoval = true)
     private Cart cart;

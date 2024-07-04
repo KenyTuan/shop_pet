@@ -1,13 +1,14 @@
 package com.test.tutipet.dtos.auth;
 
 import com.test.tutipet.constants.MessageException;
-import com.test.tutipet.enums.GenderType;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 import lombok.Getter;
 
-@Builder @Getter
-public class RegisterReq {
+@Getter @Builder
+public class ForgotReq {
 
     @Email(message = MessageException.INVALID_EMAIL,regexp = "^(.+)@(\\S+)$")
     private String email;
@@ -18,9 +19,7 @@ public class RegisterReq {
     )
     private String password;
 
-    @Size(min = 5, max = 255, message = MessageException.REQUIRED_FULL_NAME)
-    private String fullName;
+    @NotBlank(message = MessageException.REQUIRED_TOKEN)
+    private String token;
 
-    @NotNull(message = MessageException.REQUIRED_GENDER)
-    private GenderType gender;
 }

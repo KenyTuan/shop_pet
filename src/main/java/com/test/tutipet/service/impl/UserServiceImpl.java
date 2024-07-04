@@ -1,12 +1,14 @@
 package com.test.tutipet.service.impl;
 
+import com.test.tutipet.constants.MessageException;
 import com.test.tutipet.converter.UserDtoConverter;
 import com.test.tutipet.dtos.PageRes;
-import com.test.tutipet.dtos.users.UserReq;
+import com.test.tutipet.dtos.users.CreateUserReq;
+import com.test.tutipet.dtos.users.UpdateUserReq;
 import com.test.tutipet.dtos.users.UserRes;
 import com.test.tutipet.entity.User;
 import com.test.tutipet.enums.ObjectStatus;
-import com.test.tutipet.exception.GenericAlreadyException;
+import com.test.tutipet.exception.BadRequestException;
 import com.test.tutipet.exception.NotFoundException;
 import com.test.tutipet.repository.UserRepository;
 import com.test.tutipet.service.UserService;
@@ -16,7 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,9 +30,15 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public PageRes<UserRes> getAllUser(
+    public List<UserRes> getAllUsers() {
+        return UserDtoConverter.toResponseList(userRepository.findAll());
+    }
+
+    @Override
+    public PageRes<UserRes> searchAllUsers(
             String keySearch, int page, int size, String sortBy, String sortDir) {
 
         final Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
@@ -64,13 +72,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserRes updateUser(long id, UserReq req) {
-        User user = userRepository.findById(id)
+    public UserRes updateUser(long id, UpdateUserReq req) {
+        final User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User Not Found With id" + id));
 
-        user.setFullName(req.getFullName());
-        user.setGender(req.isGender());
+        final User newUser = UserDtoConverter.toEntity(req,user);
 
+        updateDeletedUserData(user);
+        userRepository.save(newUser);
         return UserDtoConverter.toResponse(userRepository.save(user));
     }
 
@@ -85,9 +94,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserRes createUser(UserReq userReq) {
+    public UserRes createUser(CreateUserReq userReq) {
+        final boolean existEmail = userRepository.existsByEmail(userReq.getEmail());
+        if (existEmail) {
+            throw new BadRequestException(MessageException.ALREADY_EXIST_EMAIL);
+        }
 
         final User user = UserDtoConverter.toEntity(userReq);
+
+        user.setPassword(passwordEncoder.encode(userReq.getPassword()));
 
         return UserDtoConverter.toResponse(userRepository.save(user));
     }

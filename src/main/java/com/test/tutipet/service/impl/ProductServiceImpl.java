@@ -1,15 +1,19 @@
 package com.test.tutipet.service.impl;
 
+import com.test.tutipet.constants.MessageException;
 import com.test.tutipet.converter.ProductDtoConverter;
 import com.test.tutipet.dtos.PageRes;
-import com.test.tutipet.dtos.products.ProductReq;
+import com.test.tutipet.dtos.products.CreateProductReq;
 import com.test.tutipet.dtos.products.ProductRes;
+import com.test.tutipet.dtos.products.UpdateProductReq;
 import com.test.tutipet.entity.Product;
 import com.test.tutipet.entity.ProductType;
+import com.test.tutipet.enums.EnableStatus;
 import com.test.tutipet.enums.ObjectStatus;
 import com.test.tutipet.exception.NotFoundException;
 import com.test.tutipet.repository.ProductRepository;
 import com.test.tutipet.repository.ProductTypeRepository;
+import com.test.tutipet.service.CartService;
 import com.test.tutipet.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,6 +32,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
 
     private final ProductTypeRepository productTypeRepository;
+
+    private final CartService cartService;
 
     @Override
     public List<ProductRes> getAllProducts() {
@@ -74,45 +81,65 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductRes insertProduct(ProductReq req) {
+    @Transactional
+    public ProductRes insertProduct(CreateProductReq req) {
 
-        final ProductType type = productTypeRepository.findById(req.getType_id())
-                .orElseThrow(()-> new NotFoundException("Product Type Not Found With Id" + req.getType_id()));
+        final ProductType type = productTypeRepository.findById(req.getTypeId())
+                .orElseThrow(()-> new NotFoundException(MessageException.NOT_FOUND_PRODUCT_TYPE));
 
         final Product product = ProductDtoConverter.toEntity(req);
 
         product.setProductType(type);
 
-        return ProductDtoConverter.toResponse(productRepository.save(product)) ;
+        productRepository.save(product);
+        return ProductDtoConverter.toResponse(product) ;
     }
 
     @Override
-    public ProductRes updateProduct(long id, ProductReq req) {
+    @Transactional
+    public ProductRes updateEnableProduct(long id, UpdateProductReq req) {
 
         final Product product = productRepository.findById(id)
-                .orElseThrow(()-> new NotFoundException("Product Not Found With Id" + id));
+                .orElseThrow(()-> new NotFoundException(MessageException.NOT_FOUND_PRODUCT));
 
-        changeObjStatus(product);
+        updateDeleteProductData(product);
 
         final Product updatedProduct = ProductDtoConverter.toEntity(req);
 
-        final ProductType type = productTypeRepository.findById(req.getType_id())
-                .orElseThrow(() -> new NotFoundException("Product Type Not Found With Id" + req.getType_id()));
+        final ProductType type = productTypeRepository.findById(req.getTypeId())
+                .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_PRODUCT_TYPE));
 
         updatedProduct.setProductType(type);
+        updatedProduct.setPromotions(product.getPromotions());
+        Product savedProduct = productRepository.save(updatedProduct);
 
-        return ProductDtoConverter.toResponse(productRepository.save(updatedProduct));
+        cartService.updateCartsByProductId(savedProduct, product.getId());
+
+        return ProductDtoConverter.toResponse(savedProduct);
     }
 
     @Override
-    public void deleteProduct(long id) {
-        final Product product = productRepository.findById(id)
-                .orElseThrow(()-> new NotFoundException("Product Not Found"));
+    public ProductRes updateEnableProduct(long productId, EnableStatus enableStatus) {
+        final Product product = productRepository.findById(productId)
+                .orElseThrow(()-> new NotFoundException(MessageException.NOT_FOUND_PRODUCT));
 
-        changeObjStatus(product);
+        product.setStatus(enableStatus);
+
+        productRepository.save(product);
+
+        return ProductDtoConverter.toResponse(product);
     }
 
-    private void changeObjStatus(Product product){
+    @Override
+    @Transactional
+    public void deleteProduct(long id) {
+        final Product product = productRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException(MessageException.NOT_FOUND_PRODUCT));
+
+        updateDeleteProductData(product);
+    }
+
+    private void updateDeleteProductData(Product product){
         product.setObjectStatus(ObjectStatus.DELETED);
         productRepository.save(product);
     }
