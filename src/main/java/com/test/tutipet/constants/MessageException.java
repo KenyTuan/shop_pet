@@ -25,10 +25,23 @@ public class MessageException {
 
     public static final String REQUIRED_ADDRESS = "Address Is Required!";
     public static final String REQUIRED_USER = "User Id Is Required!";
-    public static final String REQUIRED_LIST_PRODUCT = "List Product Order Is Required!";
+    public static final String REQUIRED_LIST_PRODUCT_ORDER = "List Product Order Is Required!";
+    public static final String REQUIRED_LIST_PRODUCT = "List Product Is Required!";
     public static final String ALREADY_EXIST_EMAIL = "Email Already Exists!";
     public static final String NOT_FOUND_USER = "User Not Found!";
     public static final String NOT_MATCH_PASSWORD = "Password Not Match!";
     public static final String TOKEN_EXPIRED = "Token Expired!";
     public static final String REQUIRED_TOKEN = "Token is Required!";
+    public static final String REQUIRED_GENDER = "Gender Is Required!";
+    public static final String REQUIRED_IMAGE = "Required Image Is Required!";
+    public static final String REQUIRED_BRAND = "Required Brand Is Required!";
+    public static final String REQUIRED_TIME_EXP = "Required Time Exp Is Required!";
+    public static final String NOT_FOUND_PRODUCT_TYPE = "Product Type Is Not Found!";
+    public static final String NOT_FOUND_PRODUCT = "Product Is Not Found!";
+    public static final String NOT_FOUND_PROMOTION = "Promotion Is Not Found!";
+    public static final String INVALID_TARGET = "Invalid Target! Must be ORDER or PRODUCT.";
+    public static final String INVALID_DISCOUNT_TYPE = "Invalid Discount Type! Must be PERCENTAGE or SPECIFIC.";
+    public static final String REQUIRED_VALUE = "Value Must Greater Than 0!";
+    public static final String INVALID_FROM_TIME = "From Time Is Required!";
+    public static final String INVALID_TO_TIME = "To Time Is Required!";
 }

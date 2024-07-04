@@ -2,24 +2,23 @@ package com.test.tutipet.service;
 
 import com.test.tutipet.dtos.carts.CartRes;
 import com.test.tutipet.dtos.productCarts.ProductCartReq;
-import com.test.tutipet.dtos.productCarts.ProductCartRes;
 import com.test.tutipet.entity.Cart;
-import com.test.tutipet.entity.ProductCart;
-
-import java.util.Set;
+import com.test.tutipet.entity.Product;
 
 public interface CartService {
 
     CartRes getById(long id);
 
-    Cart getCartByUserId(long userId);
+    Cart getCartByToken(String token);
 
-    CartRes getProductCartsByUserId(long userId);
+    CartRes getProductCartsByToken(String token);
 
-    CartRes addProductCartByUserId(long userId, ProductCartReq req);
+    CartRes addProductCartByToken(String token, ProductCartReq req);
 
-    CartRes addOrReplaceProductCartByUserId(long userId, ProductCartReq req);
+    CartRes addOrReplaceProductCartByToken(String token, ProductCartReq req);
 
-    void deleteProductCartFromCart(long userId, long productId);
+    void updateCartsByProductId(Product product,long productId);
+
+    void deleteProductCartByToken(String token, long productId);
 
 }

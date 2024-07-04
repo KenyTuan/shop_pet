@@ -24,7 +24,7 @@ public class OrderReq {
     @NotNull(message = MessageException.REQUIRED_USER)
     private Long userId;
 
-    @NotNull(message = MessageException.REQUIRED_LIST_PRODUCT)
+    @NotNull(message = MessageException.REQUIRED_LIST_PRODUCT_ORDER)
     private Set<ProductOrderReq> productOrders;
 
 
