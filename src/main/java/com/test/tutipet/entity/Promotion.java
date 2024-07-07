@@ -7,11 +7,13 @@ import com.test.tutipet.enums.EnableStatus;
 import com.test.tutipet.enums.PromotionTarget;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Set;
+
 
 @Entity
 @Table
@@ -25,6 +27,8 @@ public class Promotion extends BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private String name;
 
     @Column(length = 50)
     private String code;
@@ -50,6 +54,7 @@ public class Promotion extends BaseEntity implements Serializable {
             joinColumns = @JoinColumn(name = "promotion_id"),
             inverseJoinColumns = @JoinColumn(name = "order_id")
     )
+    @Where(clause = NOT_DELETED)
     @JsonIgnore
     private Set<Order> orders;
 
@@ -59,6 +64,7 @@ public class Promotion extends BaseEntity implements Serializable {
             joinColumns = @JoinColumn(name = "promotion_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
+    @Where(clause = NOT_DELETED)
     @JsonIgnore
     private Set<Product> products;
 

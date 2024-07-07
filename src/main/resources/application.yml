@@ -6,6 +6,13 @@ spring:
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
+  flyway:
+    baseline-on-migrate: true
+    baseline-version: 0
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3302/DEV_tutipet
+    user: root
+    password: 123456
+    enabled: true
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -33,3 +40,9 @@ application:
       expiration: 604800000
       refresh-token:
         expiration: 648000000
+  vnpay:
+    vnp_TmnCode: ${VNP_CODE}
+    vnp_HashSecret: ${VNP_SECRET}
+    vnp_Url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+    vnp_Returnurl: http://localhost:3000/valid_payment
+

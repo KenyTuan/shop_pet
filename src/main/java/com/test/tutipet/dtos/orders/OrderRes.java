@@ -6,15 +6,17 @@ import com.test.tutipet.enums.OrderStatus;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 public record OrderRes(
         Long id,
+        String code,
         BigDecimal total,
         OrderStatus status,
         String phone,
         String address,
-        Timestamp orderDate,
+        ZonedDateTime orderDate,
         UserRes user,
         Set<ProductOrderRes> productOrder
 ) {

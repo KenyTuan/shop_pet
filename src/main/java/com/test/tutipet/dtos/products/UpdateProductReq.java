@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.ZonedDateTime;
 
 @Builder @Getter
 public class UpdateProductReq {
@@ -26,13 +25,9 @@ public class UpdateProductReq {
 
     private String description;
 
-    private String info;
-
     private String img;
 
     @NotNull(message = MessageException.REQUIRED_TYPE)
     private Integer typeId;
 
-    @NotNull(message = MessageException.REQUIRED_TIME_EXP)
-    private ZonedDateTime timeExp;
 }

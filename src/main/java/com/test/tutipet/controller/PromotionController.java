@@ -23,18 +23,24 @@ public class PromotionController {
     private final PromotionService promotionService;
 
     @GetMapping(ApiEndpoints.PROMOTION_V1)
-    public List<PromotionRes> getAllPromotion() {
-        return promotionService.getAllPromotion();
+    public List<PromotionRes> getAllPromotions() {
+        return promotionService.getAllPromotions();
+    }
+
+    @GetMapping(ApiEndpoints.PROMOTION_V1+"/live-and-upcoming")
+    public List<PromotionRes> getAllLiveAndUpcomingPromotions() {
+        return promotionService.getLiveAndUpcomingPromotions();
     }
 
     @GetMapping(ApiEndpoints.PROMOTION_V1 + "/search")
     public PageRes<PromotionRes> getAllPromotionPage(
+            @RequestParam(value = "keySearch", defaultValue = "") String keySearch,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "sortBy", defaultValue = "fullName") String sortBy,
+            @RequestParam(value = "sortBy", defaultValue = "name") String sortBy,
             @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir
     ){
-        return promotionService.getAllPromotionPage(page,size,sortBy,sortDir);
+        return promotionService.getAllPromotionPage(keySearch, page, size, sortBy, sortDir);
     }
 
     @GetMapping(ApiEndpoints.PROMOTION_V1 + "/{id}")
