@@ -8,6 +8,7 @@ import lombok.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 @Entity
@@ -21,6 +22,8 @@ public class Order extends BaseEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String code;
+
     private BigDecimal total;
 
     @Enumerated(EnumType.STRING)
@@ -30,7 +33,7 @@ public class Order extends BaseEntity implements Serializable {
 
     private String address;
 
-    private Timestamp orderDate;
+    private ZonedDateTime orderDate;
 
     @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

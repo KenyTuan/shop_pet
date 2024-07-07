@@ -44,4 +44,6 @@ public class MessageException {
     public static final String REQUIRED_VALUE = "Value Must Greater Than 0!";
     public static final String INVALID_FROM_TIME = "From Time Is Required!";
     public static final String INVALID_TO_TIME = "To Time Is Required!";
+    public static final String NOT_FOUND_ORDER = "Order Is Not Found!";
+    public static final String NOT_FOUND_CART = "Cart Is Not Found!";
 }

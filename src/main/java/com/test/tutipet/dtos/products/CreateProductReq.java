@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.ZonedDateTime;
 
 @Getter @Builder
 public class CreateProductReq {
@@ -34,6 +33,4 @@ public class CreateProductReq {
     @NotNull(message = MessageException.REQUIRED_TYPE)
     private Integer typeId;
 
-    @NotNull(message = MessageException.REQUIRED_TIME_EXP)
-    private ZonedDateTime timeExp;
 }
