@@ -15,6 +15,7 @@ import com.test.tutipet.repository.ProductRepository;
 import com.test.tutipet.repository.ProductTypeRepository;
 import com.test.tutipet.service.CartService;
 import com.test.tutipet.service.ProductService;
+import com.test.tutipet.utils.PromotionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,9 +38,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductRes> getAllProducts() {
-        return productRepository.findAll().stream()
-                .map(ProductDtoConverter::toResponse)
-                .toList();
+        return ProductDtoConverter.toResponseList(productRepository.findAllActiveProducts());
     }
 
     @Override
@@ -110,7 +109,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_PRODUCT_TYPE));
 
         updatedProduct.setProductType(type);
-        updatedProduct.setPromotions(product.getPromotions());
+        updatedProduct.setPromotions(PromotionUtils.getCurrentListPromotion(product.getPromotions()) );
         Product savedProduct = productRepository.save(updatedProduct);
 
         cartService.updateCartsByProductId(savedProduct, product.getId());

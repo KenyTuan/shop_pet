@@ -17,9 +17,7 @@ public record ProductRes(
         String origin,
         double price,
         String description,
-        String info,
         String image,
-        ZonedDateTime timeExp,
         EnableStatus status,
         ProductType type,
         Promotion promotions

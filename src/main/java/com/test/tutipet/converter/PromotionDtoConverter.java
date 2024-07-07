@@ -13,7 +13,9 @@ public class PromotionDtoConverter {
     public static PromotionRes toResponse(Promotion promotion) {
         return new PromotionRes(
                 promotion.getId(),
+                promotion.getName(),
                 promotion.getCode(),
+                promotion.getValue(),
                 promotion.getTarget(),
                 promotion.getFromTime(),
                 promotion.getToTime(),
@@ -29,6 +31,7 @@ public class PromotionDtoConverter {
 
     public static Promotion toEntity(CreatePromotionReq req) {
         Promotion promotion = Promotion.builder()
+                .name(req.getName())
                 .target(req.getTarget())
                 .fromTime(req.getFromTime())
                 .toTime(req.getToTime())
@@ -42,6 +45,7 @@ public class PromotionDtoConverter {
 
     public static Promotion toEntity(UpdatePromotionReq req) {
         Promotion promotion = Promotion.builder()
+                .name(req.getName())
                 .target(req.getTarget())
                 .fromTime(req.getFromTime())
                 .toTime(req.getToTime())

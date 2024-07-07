@@ -10,9 +10,11 @@ import java.util.List;
 
 public interface PromotionService {
 
-    List<PromotionRes> getAllPromotion();
+    List<PromotionRes> getAllPromotions();
 
-    PageRes<PromotionRes> getAllPromotionPage(int page, int size, String sortBy, String sortDir);
+    List<PromotionRes> getLiveAndUpcomingPromotions();
+
+    PageRes<PromotionRes> getAllPromotionPage(String keySearch,int page, int size, String sortBy, String sortDir);
 
     PromotionRes getPromotionById(Long id);
 

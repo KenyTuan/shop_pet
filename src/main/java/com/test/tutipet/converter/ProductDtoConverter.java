@@ -20,8 +20,6 @@ public class ProductDtoConverter {
                 .origin(req.getOrigin())
                 .price(req.getPrice())
                 .description(req.getDescription())
-                .info(req.getInfo())
-                .timeExp(req.getTimeExp())
                 .image(req.getImg())
                 .status(EnableStatus.ENABLED)
                 .build();
@@ -37,9 +35,7 @@ public class ProductDtoConverter {
                 product.getOrigin(),
                 product.getPrice(),
                 product.getDescription(),
-                product.getInfo(),
                 product.getImage(),
-                product.getTimeExp(),
                 product.getStatus(),
                 product.getProductType(),
                 PromotionUtils.getCurrentPromotion(product.getPromotions())
@@ -53,8 +49,6 @@ public class ProductDtoConverter {
                 .origin(req.getOrigin())
                 .price(req.getPrice())
                 .description(req.getDescription())
-                .info(req.getInfo())
-                .timeExp(req.getTimeExp())
                 .image(req.getImg())
                 .status(EnableStatus.ENABLED)
                 .build();

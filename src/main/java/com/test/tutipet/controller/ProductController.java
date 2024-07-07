@@ -61,7 +61,7 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     public ProductRes updateEnableProduct(
             @PathVariable long id,
-            @RequestBody EnableStatus enableStatus) {
+            @RequestBody @Valid EnableStatus enableStatus) {
         return productService.updateEnableProduct(id,enableStatus);
     }
 

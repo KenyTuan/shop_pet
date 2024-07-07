@@ -1,7 +1,8 @@
 package com.test.tutipet.service;
 
-import com.test.tutipet.dtos.orders.OrderReq;
+import com.test.tutipet.dtos.orders.CreateOrderReq;
 import com.test.tutipet.dtos.orders.OrderRes;
+import com.test.tutipet.dtos.payment.PaymentReq;
 
 import java.util.List;
 
@@ -13,8 +14,9 @@ public interface OrderService {
 
     OrderRes getOrderByUserId(long id);
 
-    OrderRes addOrder(OrderReq order);
+    List<OrderRes> getOrderByToken(String token);
 
+    OrderRes addOrder(CreateOrderReq order, String token);
 
-
+    OrderRes validateOrderPayment(PaymentReq code, String token);
 }

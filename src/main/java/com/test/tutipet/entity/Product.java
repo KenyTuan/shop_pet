@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,11 +30,7 @@ public class Product extends BaseEntity implements Serializable {
 
     private String description;
 
-    private String info;
-
     private String image;
-
-    private ZonedDateTime timeExp;
 
     @Enumerated(EnumType.STRING)
     private EnableStatus status;
