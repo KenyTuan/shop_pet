@@ -157,14 +157,8 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException(MessageException.NOT_MATCH_PASSWORD);
         }
 
-        final User newUser = new User();
-
-        BeanUtils.copyProperties(changePasswordReq, user);
-
-        updateDeletedUserData(user);
-
-        newUser.setPassword(passwordEncoder.encode(changePasswordReq.getNewPassword()));
-        userRepository.save(newUser);
+        user.setPassword(passwordEncoder.encode(changePasswordReq.getNewPassword()));
+        userRepository.save(user);
     }
 
     @Override

@@ -1,9 +1,6 @@
 package com.test.tutipet;
 
-import com.test.tutipet.entity.Cart;
-import com.test.tutipet.entity.Product;
-import com.test.tutipet.entity.ProductType;
-import com.test.tutipet.entity.User;
+import com.test.tutipet.entity.*;
 import com.test.tutipet.enums.*;
 import com.test.tutipet.repository.CartRepository;
 import com.test.tutipet.repository.ProductRepository;
@@ -25,43 +22,44 @@ public class TutipetApplication {
 		SpringApplication.run(TutipetApplication.class, args);
 	}
 
-	@Bean
-	public CommandLineRunner dataLoader(
-			ProductTypeRepository productTypeRepository,
-			ProductRepository productRepository,
-			UserRepository userRepository,
-			CartRepository cartRepository){
-
-			return new CommandLineRunner() {
-				@Override
-				public void run(String... args) throws Exception {
-					List<ProductType> types = dataProductType();
-
-					productTypeRepository.saveAll(types);
-
-
-					List<Product> products = dataProduct(productTypeRepository.findAll());
-
-					productRepository.saveAll(products);
-
-					BCryptPasswordEncoder encoder =  new BCryptPasswordEncoder();
-
-					User user = User
-							.builder()
-							.email("vothanhtuan098@gmail.com")
-							.fullName("vo thanh tuan")
-							.gender(GenderType.FEMALE)
-							.password(encoder.encode("L.quy560@"))
-							.role(Role.ADMIN)
-							.build();
-					user.setObjectStatus(ObjectStatus.ACTIVE);
-					Cart cart = Cart.builder().user(user).build();
-					userRepository.save(user);
-					cartRepository.save(cart);
-				}
-		};
-
-	}
+//	@Bean
+//	public CommandLineRunner dataLoader(
+//			ProductTypeRepository productTypeRepository,
+//			ProductRepository productRepository,
+//			UserRepository userRepository,
+//			CartRepository cartRepository){
+//
+//			return new CommandLineRunner() {
+//				@Override
+//				public void run(String... args) throws Exception {
+//					List<ProductType> types = dataProductType();
+//
+//					productTypeRepository.saveAll(types);
+//
+//
+//					List<Product> products = dataProduct(productTypeRepository.findAll());
+//
+//					productRepository.saveAll(products);
+//
+//					BCryptPasswordEncoder encoder =  new BCryptPasswordEncoder();
+//
+//					User user = User
+//							.builder()
+//							.email("vothanhtuan098@gmail.com")
+//							.fullName("vo thanh tuan")
+//							.gender(GenderType.FEMALE)
+//							.password(encoder.encode("L.quy560@"))
+//							.role(Role.ADMIN)
+//							.build();
+//					user.setObjectStatus(ObjectStatus.ACTIVE);
+//					Cart cart = Cart.builder().user(user).build();
+//
+//					userRepository.save(user);
+//					cartRepository.save(cart);
+//				}
+//		};
+//
+//	}
 
 
 	public List<ProductType> dataProductType(){
