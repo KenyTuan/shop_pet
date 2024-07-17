@@ -2,10 +2,11 @@ package com.test.tutipet.converter;
 
 import com.test.tutipet.dtos.orders.CreateOrderReq;
 import com.test.tutipet.dtos.orders.OrderRes;
+import com.test.tutipet.dtos.promotions.PromotionRes;
 import com.test.tutipet.entity.Order;
 import com.test.tutipet.enums.ObjectStatus;
 import com.test.tutipet.enums.OrderStatus;
-import io.micrometer.common.KeyValues;
+import com.test.tutipet.utils.PromotionUtils;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -28,13 +29,14 @@ public class OrderDtoConverter {
         return new OrderRes(
                 order.getId(),
                 order.getCode(),
-                order.getTotal(),
                 order.getStatus(),
+                order.getPaymentType(),
                 order.getPhone(),
                 order.getAddress(),
                 order.getOrderDate(),
                 UserDtoConverter.toResponse(order.getUser()),
-                ProductOrderDtoConverter.toModelSet(order.getProductOrders())
+                ProductOrderDtoConverter.toModelSet(order.getProductOrders()),
+                PromotionUtils.getCurrentPromotion(order.getPromotions())
         );
     }
 

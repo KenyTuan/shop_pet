@@ -6,4 +6,5 @@ import jakarta.servlet.http.HttpServletRequest;
 public interface VnPayService {
 
     String createPayment(HttpServletRequest request, String token, PaymentReq code);
+
 }

@@ -8,7 +8,9 @@ import com.test.tutipet.dtos.payment.PaymentReq;
 import com.test.tutipet.dtos.productOrders.ProductOrderReq;
 import com.test.tutipet.entity.*;
 import com.test.tutipet.enums.DiscountType;
+import com.test.tutipet.enums.ObjectStatus;
 import com.test.tutipet.enums.OrderStatus;
+import com.test.tutipet.enums.PaymentType;
 import com.test.tutipet.exception.BadRequestException;
 import com.test.tutipet.exception.NotFoundException;
 import com.test.tutipet.repository.*;
@@ -40,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderRes> getOrders() {
-        return OrderDtoConverter.toResponseList(orderRepository.findAll());
+        return OrderDtoConverter.toResponseList(orderRepository.findAllActive());
     }
 
     public OrderRes getOrderById(long id) {
@@ -49,10 +51,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderRes getOrderByUserId(long id) {
-        final Order order = orderRepository.findByUserId(id)
-                .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_ORDER));
-        return OrderDtoConverter.toResponse(order);
+    public List<OrderRes> getOrderByUserId(long id) {
+        return OrderDtoConverter.toResponseList(orderRepository.findByUserId(id));
     }
 
     @Override
@@ -90,43 +90,27 @@ public class OrderServiceImpl implements OrderService {
 
         productCartRepository.deleteAll(carts);
 
-
-        final Set<ProductOrder> productOrders = order.getProductOrders()
+        final Set<ProductOrder> productOrders = req.getProductOrders()
                 .stream()
-                .peek(i -> {
-                    i.setOrder(order);
-                    final Product product = productRepository.findById(i.getProduct().getId())
-                            .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_PRODUCT));
-                    i.setProduct(product);
-                })
+                .map(i -> converProductOrder(order, i)
+                )
                 .collect(Collectors.toSet());
-
-        final BigDecimal total = productOrders.stream()
-                .map(this::calculateDiscountedPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         productOrderRepository
                 .saveAll(productOrders);
+
+        order.setProductOrders(productOrders);
         order.setCode(generateOrderCode());
-
-        if(req.getCode().isEmpty()){
-            order.setUser(user);
-            order.setTotal(total);
-            orderRepository.save(order);
-            return OrderDtoConverter.toResponse(order);
-        }
-
-        final Promotion promotion = promotionRepository.findByCodeAndUserEmail(req.getCode(),email)
-                        .orElseThrow(()-> new NotFoundException(MessageException.NOT_FOUND_PROMOTION));
-
-        if(promotion.getDiscountType() == DiscountType.PERCENTAGE){
-            total.subtract(total.multiply(promotion.getValue().divide(BigDecimal.valueOf(100))));
-        }else{
-            total.subtract(promotion.getValue());
-        }
-
+        order.setPaymentType(PaymentType.NON_PAYMENT);
         order.setUser(user);
-        order.setTotal(total);
+        if(req.getPromotionId()!= 0){
+            final Promotion promotion = promotionRepository.findById(req.getPromotionId())
+                    .orElseThrow(()-> new NotFoundException(MessageException.NOT_FOUND_PROMOTION));
+            promotion.getOrders().add(order);
+
+            promotionRepository.save(promotion);
+        }
+
         orderRepository.save(order);
 
         return OrderDtoConverter.toResponse(order);
@@ -143,27 +127,27 @@ public class OrderServiceImpl implements OrderService {
         final Order order = orderRepository.findByUserEmailAndCode(email, req.getCode())
                 .orElseThrow(()-> new NotFoundException(MessageException.NOT_FOUND_ORDER));
 
-        order.setStatus(OrderStatus.PAYMENT);
+        order.setPaymentType(PaymentType.PAYMENT_VNP);
         orderRepository.save(order);
         return OrderDtoConverter.toResponse(order);
     }
 
-    private BigDecimal calculateDiscountedPrice(ProductOrder productOrder) {
-        final Product product = productRepository.findById(productOrder.getProduct().getId())
-                .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_PRODUCT));
-        Promotion promotion = PromotionUtils.getCurrentPromotion(product.getPromotions());
-        BigDecimal discountedPrice = BigDecimal.valueOf(product.getPrice());
+    @Override
+    public OrderRes changeStatusOrder(OrderStatus status, Long id) {
+        final Order order = orderRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException(MessageException.NOT_FOUND_ORDER));
 
-        if (promotion != null) {
-            if (promotion.getDiscountType() == DiscountType.PERCENTAGE) {
-                BigDecimal discountAmount = discountedPrice.multiply(promotion.getValue()).divide(BigDecimal.valueOf(100));
-                discountedPrice = discountedPrice.subtract(discountAmount);
-            } else {
-                discountedPrice = discountedPrice.subtract(promotion.getValue());
-            }
-        }
+        order.setStatus(status);
+        orderRepository.save(order);
+        return OrderDtoConverter.toResponse(order);
+    }
 
-        return discountedPrice.multiply(BigDecimal.valueOf(productOrder.getQuantity()));
+    @Override
+    public void deletedOrder(Long id) {
+        final Order order = orderRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException(MessageException.NOT_FOUND_ORDER));
+        order.setObjectStatus(ObjectStatus.DELETED);
+        orderRepository.save(order);
     }
 
     private String generateOrderCode() {
@@ -174,5 +158,13 @@ public class OrderServiceImpl implements OrderService {
         return "DH" + uuidString;
     }
 
-
+    private ProductOrder converProductOrder(Order order, ProductOrderReq productOrderReq) {
+        final Product product = productRepository.findById(productOrderReq.getProduct_id())
+                .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_PRODUCT));
+        return ProductOrder.builder()
+                .order(order)
+                .product(product)
+                .quantity(productOrderReq.getQuantity())
+                .build();
+    }
 }

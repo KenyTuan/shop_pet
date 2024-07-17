@@ -12,8 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -26,7 +24,7 @@ public class SecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
             ApiEndpoints.PREFIX + ApiEndpoints.AUTH_V1 + "/**",
-            ApiEndpoints.PAY_V1 + "/validate-transaction-vnp",
+            ApiEndpoints.PREFIX + ApiEndpoints.PROMOTION_V1 + "/live-and-upcoming",
             "/swagger-resources",
             "/swagger-resources/**",
             "/configuration/ui",
@@ -51,21 +49,12 @@ public class SecurityConfig {
                                 .requestMatchers(
                                         new AntPathRequestMatcher(
                                                 ApiEndpoints.PREFIX + ApiEndpoints.PRODUCT_V1 + "/**",
-                                                HttpMethod.GET.name()),
-                                        new AntPathRequestMatcher(
-                                                ApiEndpoints.PREFIX + ApiEndpoints.PROMOTION_V1 + "/live-and-upcoming",
                                                 HttpMethod.GET.name())
                                 )
                                 .permitAll()
                                 .requestMatchers(
                                         new AntPathRequestMatcher(
                                                 ApiEndpoints.PREFIX + ApiEndpoints.PRO_TYPE_V1 + "/**",
-                                                HttpMethod.GET.name())
-                                )
-                                .permitAll()
-                                .requestMatchers(
-                                        new AntPathRequestMatcher(
-                                                ApiEndpoints.PAY_V1 + "/validate-transaction-vnp" + "/**",
                                                 HttpMethod.GET.name())
                                 )
                                 .permitAll()

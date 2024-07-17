@@ -4,16 +4,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.test.tutipet.enums.EnableStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+
+import static com.test.tutipet.entity.BaseEntity.NOT_DELETED;
 
 @Entity
 @Table(name = "products")
 @Getter @Setter @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Where(clause = NOT_DELETED)
 public class Product extends BaseEntity implements Serializable {
 
     @Id
