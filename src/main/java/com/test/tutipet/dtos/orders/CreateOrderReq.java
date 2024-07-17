@@ -1,5 +1,6 @@
 package com.test.tutipet.dtos.orders;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.test.tutipet.constants.MessageException;
 import com.test.tutipet.dtos.productOrders.ProductOrderReq;
 import jakarta.validation.constraints.NotBlank;
@@ -23,6 +24,6 @@ public class CreateOrderReq {
     @NotNull(message = MessageException.REQUIRED_LIST_PRODUCT_ORDER)
     private Set<ProductOrderReq> productOrders;
 
-    private String code;
+    private Long promotionId;
 
 }

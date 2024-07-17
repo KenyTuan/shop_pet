@@ -37,10 +37,14 @@ public class ProductController {
         return productService.searchProducts(keySearch,page, size,sortBy,sortDir);
     }
 
-
     @GetMapping(ApiEndpoints.PRODUCT_V1 + "/{id}")
     public ProductRes getProductById(@PathVariable(value = "id") long id) {
         return productService.getProductById(id);
+    }
+
+    @GetMapping(ApiEndpoints.PRODUCT_V1 + "/search/{name}")
+    public ProductRes getProductByName(@PathVariable(value = "name") String name) {
+        return productService.getProductByName(name);
     }
 
     @PostMapping(ApiEndpoints.PRODUCT_V1)

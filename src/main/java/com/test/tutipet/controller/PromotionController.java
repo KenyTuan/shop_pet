@@ -6,6 +6,7 @@ import com.test.tutipet.dtos.PageRes;
 import com.test.tutipet.dtos.promotions.CreatePromotionReq;
 import com.test.tutipet.dtos.promotions.PromotionRes;
 import com.test.tutipet.dtos.promotions.UpdatePromotionReq;
+import com.test.tutipet.dtos.promotions.ValidatePromotionReq;
 import com.test.tutipet.enums.EnableStatus;
 import com.test.tutipet.service.PromotionService;
 import jakarta.validation.Valid;
@@ -67,8 +68,8 @@ public class PromotionController {
         promotionService.deletePromotion(id);
     }
 
-    @PatchMapping(ApiEndpoints.PROMOTION_V1 + "/{code}/validate")
-    public void validatePromotion(@PathVariable String code,
+    @PatchMapping(ApiEndpoints.PROMOTION_V1 + "/validate")
+    public void validatePromotion(@RequestBody ValidatePromotionReq code,
                                   @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token) {
         promotionService.validatePromotionByCode(code, token);
     }

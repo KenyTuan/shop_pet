@@ -6,6 +6,7 @@ import com.test.tutipet.dtos.PageRes;
 import com.test.tutipet.dtos.promotions.CreatePromotionReq;
 import com.test.tutipet.dtos.promotions.PromotionRes;
 import com.test.tutipet.dtos.promotions.UpdatePromotionReq;
+import com.test.tutipet.dtos.promotions.ValidatePromotionReq;
 import com.test.tutipet.entity.Order;
 import com.test.tutipet.entity.Product;
 import com.test.tutipet.entity.Promotion;
@@ -19,7 +20,6 @@ import com.test.tutipet.repository.ProductRepository;
 import com.test.tutipet.repository.PromotionRepository;
 import com.test.tutipet.security.JwtUtil;
 import com.test.tutipet.service.PromotionService;
-import com.test.tutipet.utils.PromotionUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,10 +29,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -91,16 +88,23 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
-    public void validatePromotionByCode(String code, String token) {
+    public void validatePromotionByCode(ValidatePromotionReq req, String token) {
         if (token == null || !token.startsWith("Bearer ")) {
             throw new BadRequestException("Invalid or missing Authorization header");
         }
         final String email = jwtUtil.extractUsername(token.substring(7));
 
-        if (promotionRepository.existsByCodeAndUserEmail(code,email)) {
-            throw new NotFoundException(MessageException.NOT_FOUND_PROMOTION);
-        }
+        final Promotion promotion = promotionRepository.findByCode(req.getCode())
+                .orElseThrow(() -> new NotFoundException(MessageException.NOT_FOUND_PROMOTION));
 
+        final Order exist = promotion.getOrders().stream()
+                .filter((i) -> i.getUser().getEmail().equals(email))
+                .findFirst()
+                .orElse(null);
+
+        if(!Objects.isNull(exist)) {
+            throw new BadRequestException(MessageException.NOT_FOUND_PROMOTION);
+        }
     }
 
     @Override

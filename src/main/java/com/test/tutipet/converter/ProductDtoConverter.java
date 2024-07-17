@@ -34,6 +34,7 @@ public class ProductDtoConverter {
                 product.getBrand(),
                 product.getOrigin(),
                 product.getPrice(),
+                PromotionUtils.calculateDiscountProduct(product),
                 product.getDescription(),
                 product.getImage(),
                 product.getStatus(),

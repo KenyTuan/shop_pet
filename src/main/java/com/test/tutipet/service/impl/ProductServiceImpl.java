@@ -51,7 +51,7 @@ public class ProductServiceImpl implements ProductService {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<Product> products = productRepository
-                .findByNameContainingAndObjectStatus(keySearch, ObjectStatus.ACTIVE ,pageable);
+                .findPagedByNameContainingAndObjectStatus(keySearch, ObjectStatus.ACTIVE ,pageable);
 
         List<ProductRes> productList = products
                 .stream()
@@ -136,6 +136,13 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(()-> new NotFoundException(MessageException.NOT_FOUND_PRODUCT));
 
         updateDeleteProductData(product);
+    }
+
+    @Override
+    public ProductRes getProductByName(String name) {
+        final Product product = productRepository.findByNameContaining(name)
+                .orElseThrow(()-> new NotFoundException(MessageException.NOT_FOUND_PRODUCT));
+        return ProductDtoConverter.toResponse(product);
     }
 
     private void updateDeleteProductData(Product product){

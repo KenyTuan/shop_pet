@@ -30,14 +30,18 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
             "where p.objectStatus = com.test.tutipet.enums.ObjectStatus.ACTIVE and p.code = ?1")
     boolean existsByCode(String code);
 
-    @Query("SELECT COUNT(p) > 0 FROM Promotion p WHERE p.code = :code " +
+    @Query("SELECT COUNT(p) > 0 FROM Promotion p, Order o  WHERE p.code = :code " +
             "AND p.objectStatus = com.test.tutipet.enums.ObjectStatus.ACTIVE" +
-            " AND EXISTS (SELECT u FROM User u WHERE u.email = :email)")
+            " AND o.user.email = :email")
     boolean existsByCodeAndUserEmail(@Param("code") String code, @Param("email") String email);
 
 
-    @Query("select p from Promotion p WHERE p.code = :code " +
+    @Query("select p from Promotion p, Order o, User u WHERE p.code = :code " +
     "AND p.objectStatus = com.test.tutipet.enums.ObjectStatus.ACTIVE " +
-    "AND EXISTS (SELECT u FROM User u WHERE u.email = :email)")
-    Optional<Promotion> findByCodeAndUserEmail(@Param("code") String code, @Param("email") String email);
+    "AND u.email = :email")
+    Promotion findByCodeAndUserEmail(@Param("code") String code, @Param("email") String email);
+
+    @Query("select p from Promotion p WHERE p.code = :code " +
+            "AND p.objectStatus = com.test.tutipet.enums.ObjectStatus.ACTIVE ")
+    Optional<Promotion> findByCode(@Param("code") String code);
 }

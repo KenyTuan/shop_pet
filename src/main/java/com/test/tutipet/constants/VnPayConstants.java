@@ -7,7 +7,7 @@ public class VnPayConstants {
     public static final String VNP_COMMAND_STATUS = "querydr";
     public static final String ORDER_TYPE = "other";
     public static final String VNP_CURRENCY_CODE = "VND";
-    public static final String VNP_LOCALE = "vn";
+    public static final String VNP_LOCALE = "vi-VN";
     public static final String VNP_IP_ADDR = "192.168.1.252";
     public static final String VNP_BANK_CODE = "NCB";
     public static final String VNP_RESPONSE_CODE = "00";

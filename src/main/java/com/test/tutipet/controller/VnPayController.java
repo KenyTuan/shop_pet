@@ -12,6 +12,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
+
+import java.util.Map;
 
 
 @RestController
@@ -29,12 +32,5 @@ public class VnPayController {
                                              HttpServletRequest request){
         return vnPayService.createPayment(request,token,code);
     }
-
-    @GetMapping(ApiEndpoints.PAY_V1 + "/validate-transaction-vnp")
-    public ModelAndView validate(){
-
-        return new ModelAndView("redirect:http://localhost:3000");
-    }
-
 
 }

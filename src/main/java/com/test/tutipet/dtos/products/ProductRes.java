@@ -3,12 +3,9 @@ package com.test.tutipet.dtos.products;
 import com.test.tutipet.entity.ProductType;
 import com.test.tutipet.entity.Promotion;
 import com.test.tutipet.enums.EnableStatus;
-import com.test.tutipet.enums.ObjectStatus;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.util.Set;
+import java.math.BigDecimal;
 
 public record ProductRes(
         Long id,
@@ -16,6 +13,7 @@ public record ProductRes(
         String brand,
         String origin,
         double price,
+        BigDecimal discount,
         String description,
         String image,
         EnableStatus status,
